@@ -1,15 +1,18 @@
-#include <iostream>
-#include <cstdlib>
-#include <vector>
-#include <time.h>
+//#include <iostream>
+//#include <cstdlib>
+#include <bits/stdc++.h>
+//#include <vector>
+//#include <time.h>
 
 #define DIM 8
+#define GEN 100
 
 using namespace std;
 
 class Chromosome{
-	std::vector<int> permutations;
+	
 public:
+	std::vector<int> permutations;
 	Chromosome();
 	void displayPermutation();
 	void printBoard();
@@ -58,11 +61,140 @@ int Chromosome::check(){
 	return num_checks;
 }
 
+bool Compare(Chromosome i, Chromosome j){ return (i.check()<i.check());}
+
 int main(){
 	srand (time(NULL));
 
 	Chromosome* test;
 	long int aux,i=0;
+
+	Chromosome geracao[GEN];
+	printf("\n");
+
+	for(int i=GEN-1;i>0;i--){
+		int rand_position = rand()%(i+1); //Gera a posicao
+		//Faz a troca
+		Chromosome aux = geracao[rand_position];
+		geracao[rand_position] = geracao[i];
+		geracao[i] = aux;
+	}
+
+	Chromosome selecao[5];
+
+	for (int i = 0; i < 5; i++)
+	{
+		selecao[i] = geracao[i];
+	}
+
+
+
+
+		for (int i = 0; i < 5; i++)
+	{
+		printf("%d\n", selecao[i].check());
+	}
+	printf("\n");
+
+	Chromosome aux1;
+
+   for (int i = 0; i < 5-1; i++)  {    
+       // Last i elements are already in place   
+       for (int j = 0; j < 5-i-1; j++){ 
+           if (selecao[j].check() > selecao[j+1].check()){
+           		aux1 = selecao[j];
+           		selecao[j] = selecao[j+1];
+           		selecao[j+1] = aux1;
+            }
+        }
+    }
+
+
+	for (int i = 0; i < 5; i++)
+	{
+		printf("%d\n", selecao[i].check());
+	}
+
+	Chromosome son1,son2;
+
+	son1 = selecao[0];
+	son2 = selecao[1];
+
+	bool son1_[8];
+	bool son2_[8];
+
+	for (int i = 0; i < 8; ++i)
+	{
+		son1_[i] = false;
+		son2_[i] = false;
+	}
+
+
+
+	printf("cross\n");
+
+	son1.displayPermutation();
+	son2.displayPermutation();
+
+	if((1+rand()%10)!=10){
+		int pos = 1+rand()%6;
+		printf("pos: %d\n",pos );
+		for (int i = 0; i < pos; ++i)
+		{
+			son1_[son1.permutations[i]] = true;
+			son2_[son2.permutations[i]] = true;
+		}
+
+		int i=pos;
+		int j=pos;
+
+		do{
+			if(i<8){
+				if(son1_[selecao[1].permutations[i]]){
+					son1.permutations[j] = selecao[1].permutations[i];
+					i++;
+					j++;
+				}else{
+					i++;
+				}
+			}else{
+				for (int k = 0; k < pos; ++k)
+				{
+					son1.permutations[j] = selecao[0].permutations[k];
+					j++;
+				}
+			}
+
+		}while(j<7);
+		i=pos;
+		j=pos;
+
+
+		do{
+			if(i<8){
+				if(son2_[selecao[0].permutations[i]]){
+					son2.permutations[j] = selecao[0].permutations[i];
+					i++;
+					j++;
+				}else{
+					i++;
+				}
+			}else{
+				for (int k = 0; k < pos; ++k)
+				{
+					son2.permutations[j] = selecao[1].permutations[k];
+					j++;
+				}
+			}
+
+		}while(j<7);
+	}
+	son1.displayPermutation();
+	son2.displayPermutation();
+	selecao[0].displayPermutation();
+	selecao[1].displayPermutation();
+	
+	/*
 	while(true){
 		system("clear");
 		i++;
@@ -74,6 +206,6 @@ int main(){
 		test->printBoard();
 		if(!aux) break;
 		cout<<endl<<endl;
-	}
+	}*/
 	return 0;
 }
