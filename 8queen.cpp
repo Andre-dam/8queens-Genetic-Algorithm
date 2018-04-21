@@ -1,11 +1,8 @@
-//#include <iostream>
-//#include <cstdlib>
 #include <bits/stdc++.h>
-//#include <vector>
-//#include <time.h>
 
 #define DIM 8
 #define GEN 100
+#define QNT_ESCOLHIDOS 5
 
 using namespace std;
 
@@ -17,6 +14,8 @@ public:
 	void displayPermutation();
 	void printBoard();
 	int check();
+	bool operator<(Chromosome& b);
+  	void mutation();
 };
 
 Chromosome::Chromosome(){	
@@ -35,7 +34,7 @@ Chromosome::Chromosome(){
 }
 
 void Chromosome::displayPermutation(){
-	cout <<"Permutations: ";
+	cout <<"\tPermutations: ";
 	for(int i=0;i < this->permutations.size();i++){
 		cout <<this->permutations[i]<<" ";
 	}
@@ -60,8 +59,145 @@ int Chromosome::check(){
 	}
 	return num_checks;
 }
+bool Chromosome::operator<(Chromosome& b){
+    return this->check() < b.check();
+}
+void Chromosome::mutation(){
+    printf("\n====================================================\n====================== Mutacao =====================\n====================================================\n");
+  	
+    if((1+rand()%10)<=4){
+		int pos1 = rand()%8;
+		int pos2;
+		do {
+		   pos2 = rand()%8;
+		} while (pos2 == pos1);
+        
+        int aux = this->permutations[pos1];
+        this->permutations[pos1] = this->permutations[pos2];
+        this->permutations[pos2] = aux;
+      	printf("> Mutacao:\n\t%d <--> %d\n",pos1, pos2);
+      	this->displayPermutation();
+	}
+	else{
+		printf("> Nao houve Mutacao<\n");
+	}
+}
 
-bool Compare(Chromosome i, Chromosome j){ return (i.check()<i.check());}
+
+/* void troca (Chromosome *A, Chromosome *B) {
+ // printf("(troca entra) Ordena"); 
+	Chromosome t;
+	t = *A;
+	*A = *B;
+	*B = t;
+	 // printf("(troca sai) Ordena");
+}
+
+void Ordena (Chromosome v[], int p, int r) {
+	int count = 0;
+    if (p < r) {
+    	// printf("Ordena %d\n", count++);
+		int i = p-1, j = r;
+		// printf("Ordena %d\n", count++);
+		Chromosome c = v[r];
+		// printf("Ordena %d\n", count++);
+		while (1) { 
+			// printf("(while 1) Ordena %d\n", count++);
+		 while (v[++i].check() < c.check()) ;
+		 // printf("(while 2) Ordena %d\n", count++);
+		 while (c.check() < v[--j].check()) if (j == p) break;
+		  // printf("(while 3) Ordena %d\n", count++);
+		 if (i > j) break;
+		 troca (&v[i], &v[j]);
+		}
+		troca (&v[i], &v[r]);
+		Ordena (v, p, j);
+		Ordena (v, i+1, r);
+    }
+} */
+
+void Cross_over (Chromosome *pai_1, Chromosome *pai_2, Chromosome *filho_1, Chromosome *filho_2){
+	printf("\n====================================================\n==================== Cross-over ====================\n====================================================\n");
+  	printf("> Pais:\n");
+	pai_1->displayPermutation();
+	pai_2->displayPermutation();
+
+	bool visitadosFilho_1[8];
+	bool visitadosFilho_2[8];
+
+	for (int i = 0; i < 8; ++i)
+	{
+		visitadosFilho_1[i] = false;
+		visitadosFilho_2[i] = false;
+	}
+
+	if((1+rand()%10)!=10){
+		int pos = 1+rand()%(DIM-2);
+		printf("> Cross-over na posicao: %d\n",pos );
+		for (int i = 0; i < pos; ++i)
+		{
+			visitadosFilho_1[filho_1->permutations[i]] = true;
+			visitadosFilho_2[filho_2->permutations[i]] = true;
+		}
+
+		int i=pos;
+		int j=pos; // tem que comecar a partir da posicao do array seguinte do corte
+
+		do{
+			if(i < DIM){
+				if(!visitadosFilho_1[pai_2->permutations[i]]){
+					filho_1->permutations[j] = pai_2->permutations[i];
+					visitadosFilho_1[pai_2->permutations[i]] = true;
+					i++;
+					j++;
+				}else{
+					i++;
+				}
+			}else{
+				for (int k = 0; k < pos; ++k)
+				{
+					if(!visitadosFilho_1[pai_2->permutations[k]]){
+						filho_1->permutations[j] = pai_2->permutations[k];
+						j++;
+			        }
+				}
+			}
+
+		}while(j < DIM);
+
+		i=pos;
+		j=pos;
+
+		do{
+			if(i < DIM){
+				if(!visitadosFilho_2[pai_1->permutations[i]]){
+					filho_2->permutations[j] = pai_1->permutations[i];
+					visitadosFilho_2[pai_1->permutations[i]] = true;
+					i++;
+					j++;
+				}else{
+					i++;
+				}
+			}else{
+				for (int k = 0; k < pos; ++k)
+				{
+					if(!visitadosFilho_2[pai_1->permutations[k]]){
+						filho_2->permutations[j] = pai_1->permutations[k];
+						j++;
+					}
+				}
+			}
+
+		}while(j < DIM);
+	}
+	else{
+		printf("> Não ocorreu Cross-over <\n");
+	}
+  	printf("> Filhos:\n");
+  	filho_1->displayPermutation();
+	filho_2->displayPermutation();
+	//printf("====================================================\n");
+}
 
 int main(){
 	srand (time(NULL));
@@ -80,132 +216,68 @@ int main(){
 		geracao[i] = aux;
 	}
 
-	Chromosome selecao[5];
+	Chromosome selecao[QNT_ESCOLHIDOS];
 
-	for (int i = 0; i < 5; i++)
-	{
+	for (int i = 0; i < QNT_ESCOLHIDOS; i++){
 		selecao[i] = geracao[i];
 	}
 
-
-
-
-		for (int i = 0; i < 5; i++)
-	{
-		printf("%d\n", selecao[i].check());
+  	printf("5 selecionados:\n");
+	for (int i = 0; i < 5; i++){
+		printf("%d ", selecao[i].check());
 	}
-	printf("\n");
-
-	Chromosome aux1;
-
-   for (int i = 0; i < 5-1; i++)  {    
-       // Last i elements are already in place   
-       for (int j = 0; j < 5-i-1; j++){ 
-           if (selecao[j].check() > selecao[j+1].check()){
-           		aux1 = selecao[j];
-           		selecao[j] = selecao[j+1];
-           		selecao[j+1] = aux1;
-            }
-        }
-    }
+	printf("\n\n");
 
 
+  	sort(selecao,selecao + QNT_ESCOLHIDOS);
+  	//Ordena(selecao, 0, QNT_ESCOLHIDOS-1);
+
+	printf("5 selecionados ordenado:\n");
 	for (int i = 0; i < 5; i++)
 	{
-		printf("%d\n", selecao[i].check());
+		printf("%d ", selecao[i].check());
 	}
+	printf("\n\n");
+	Chromosome filho_1,filho_2;
 
-	Chromosome son1,son2;
+	filho_1 = selecao[0];
+	filho_2 = selecao[1];
 
-	son1 = selecao[0];
-	son2 = selecao[1];
-
-	bool son1_[8];
-	bool son2_[8];
-
-	for (int i = 0; i < 8; ++i)
-	{
-		son1_[i] = false;
-		son2_[i] = false;
-	}
-
-
-
-	printf("cross\n");
-
-	son1.displayPermutation();
-	son2.displayPermutation();
-
-	if((1+rand()%10)!=10){
-		int pos = 1+rand()%6;
-		printf("pos: %d\n",pos );
-		for (int i = 0; i < pos; ++i)
-		{
-			son1_[son1.permutations[i]] = true;
-			son2_[son2.permutations[i]] = true;
-		}
-
-		int i=pos;
-		int j=pos;
-
-		do{
-			if(i<8){
-				if(son1_[selecao[1].permutations[i]]){
-					son1.permutations[j] = selecao[1].permutations[i];
-					i++;
-					j++;
-				}else{
-					i++;
-				}
-			}else{
-				for (int k = 0; k < pos; ++k)
-				{
-					son1.permutations[j] = selecao[0].permutations[k];
-					j++;
-				}
-			}
-
-		}while(j<7);
-		i=pos;
-		j=pos;
-
-
-		do{
-			if(i<8){
-				if(son2_[selecao[0].permutations[i]]){
-					son2.permutations[j] = selecao[0].permutations[i];
-					i++;
-					j++;
-				}else{
-					i++;
-				}
-			}else{
-				for (int k = 0; k < pos; ++k)
-				{
-					son2.permutations[j] = selecao[1].permutations[k];
-					j++;
-				}
-			}
-
-		}while(j<7);
-	}
-	son1.displayPermutation();
-	son2.displayPermutation();
-	selecao[0].displayPermutation();
-	selecao[1].displayPermutation();
+	Cross_over (&selecao[0], &selecao[1], &filho_1, &filho_2);
 	
-	/*
-	while(true){
-		system("clear");
-		i++;
-		cout<<"Number of iterations :"<<i<<endl;
-		test = new Chromosome();
-		test->displayPermutation();
-		aux = test->check();
-		cout <<"checks: "<<aux;
-		test->printBoard();
-		if(!aux) break;
-		cout<<endl<<endl;
-	}*/
+    filho_1.mutation();
+    filho_2.mutation();
+
+  
+  	sort(geracao,geracao + GEN);
+  	//Ordena(geracao, 0, GEN-1);
+  
+  	printf("\n> Selecao de sobreviventes <\n\n");
+  	printf("%d %d\n", geracao[GEN-2].check(), geracao[GEN-1].check());
+  	
+  
+
+  
+      if(filho_1.check() < filho_2.check()){
+        if(filho_1.check() < geracao[GEN-2].check()){
+      	    geracao[GEN-2] = filho_1;
+            if(filho_2.check() < geracao[GEN-1].check()){
+                geracao[GEN-1] = filho_2;
+            }
+        }else if(filho_1.check() < geracao[GEN-1].check()){
+            geracao[GEN-1] = filho_1;
+        }
+    }else{
+        if(filho_2.check() < geracao[GEN-2].check()){
+      	    geracao[GEN-2] = filho_2;
+            if(filho_1.check() < geracao[GEN-1].check()){
+                geracao[GEN-1] = filho_1;
+            }
+        }else if(filho_2.check() < geracao[GEN-1].check()){
+            geracao[GEN-1] = filho_2;
+        }
+    }
+  	printf("%d %d\n", geracao[GEN-2].check(), geracao[GEN-1].check());
+
 	return 0;
 }
