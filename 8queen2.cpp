@@ -1,8 +1,8 @@
 #include <bits/stdc++.h>
 
 #define DIM 8
-#define GEN 200
-#define QNT_ESCOLHIDOS 5
+#define GEN 100
+#define QNT_ESCOLHIDOS 2
 #define MUT_RATE 4
 
 using namespace std;
@@ -214,52 +214,54 @@ int zero_sum=0;
 		Chromosome filho_1,filho_2;
 		int posicoes[QNT_ESCOLHIDOS];
 		int iterac;
+
 		printf("\n");
 		
 		for(iterac=0; iterac < 10000; iterac++){
+			int sum_fit=0;
 			printf("\n====================================================\n=================== Iteracao: %d ===================\n====================================================\n",iterac);
 			sort(geracao,geracao + GEN);
+			int maxfit = geracao[GEN-1].check();
 			for(int i=0; i < GEN; i++){
 				cout << geracao[i].check() << " ";
 			}
 			cout << endl;
 			if(!geracao[0].check()) break;
 
-		/* 		for(int i=GEN-1;i>0;i--){
+		 	for(int i=GEN-1;i>0;i--){
 				int rand_position = rand()%(i+1); //Gera a posicao
 				//Faz a troca
 				Chromosome aux = geracao[rand_position];
 				geracao[rand_position] = geracao[i];
 				geracao[i] = aux;
-			} */
-			for(int i=0;i<QNT_ESCOLHIDOS;i++){
-				posicoes[i] = -1;
 			}
 
-			for (int i = 0; i < QNT_ESCOLHIDOS; i++){
-				int rand_pos;
-				bool repeated;
-				do{
-					
-					repeated = false;
-					rand_pos = rand()%GEN;
-					for(int j=0;j<QNT_ESCOLHIDOS;j++){
-						if(posicoes[j] == rand_pos) repeated = true;
-					}
-					if(repeated) printf("aquiii");
-				}while(repeated);
-				posicoes[i]=rand_pos;
-			}
-			for(int i = 0; i<QNT_ESCOLHIDOS;i++) cout<< posicoes[i] << " ";
-
-			cout <<endl;
 			
-
-			for (int i = 0; i < QNT_ESCOLHIDOS; i++){
-				selecao[i] = geracao[posicoes[i]];
+			for (int i = 0; i < GEN; ++i)
+			{			
+				sum_fit += geracao[i].check();
 			}
 
-			printf("5 selecionados:\n");
+			int r1 = rand()%(sum_fit+1);
+			int i1=0;
+			while(r1>0){
+				r1-= (maxfit - geracao[i1].check()+1);
+				i1++;
+			}
+			selecao[0] = geracao[i1-1];
+			int i2=0;
+			do {
+				int r2 = rand()%(sum_fit+1);
+				i2=0;
+				while(r2>0){
+					r2-= (maxfit - geracao[i2].check()+1);
+					i2++;
+				}
+				selecao[1] = geracao[i2-1];
+			} while (i1-1 == i2);
+
+
+			printf("2 selecionados:\n");
 			for (int i = 0; i < QNT_ESCOLHIDOS; i++){
 				printf("%d ", selecao[i].check());
 			}
@@ -269,12 +271,12 @@ int zero_sum=0;
 			sort(selecao,selecao + QNT_ESCOLHIDOS);
 			//Ordena(selecao, 0, QNT_ESCOLHIDOS-1);
 
-		/* 		printf("5 selecionados ordenado:\n");
-			for (int i = 0; i < 5; i++)
+		 		printf("5 selecionados ordenado:\n");
+			for (int i = 0; i < 2; i++)
 			{
 				printf("%d ", selecao[i].check());
 			}
-			printf("\n\n"); */
+			printf("\n\n"); 
 			
 
 			filho_1 = selecao[0];
