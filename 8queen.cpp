@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 
 #define DIM 8
-#define GEN 200
+#define GEN 100
 #define QNT_ESCOLHIDOS 5
 #define MUT_RATE 4
 
@@ -204,6 +204,8 @@ int main(){
 srand (time(NULL));
 int soma_iterac=0;
 int zero_sum=0;
+int gen_tot=0;
+int maxfit;
 
 	for(int k=0; k<100;k++){
 
@@ -215,10 +217,11 @@ int zero_sum=0;
 		int posicoes[QNT_ESCOLHIDOS];
 		int iterac;
 		printf("\n");
-		
+		int gen_sum=0;
 		for(iterac=0; iterac < 10000; iterac++){
 			printf("\n====================================================\n=================== Iteracao: %d ===================\n====================================================\n",iterac);
 			sort(geracao,geracao + GEN);
+			maxfit = geracao[GEN-1].check();
 			for(int i=0; i < GEN; i++){
 				cout << geracao[i].check() << " ";
 			}
@@ -320,10 +323,17 @@ int zero_sum=0;
 		cout << "Check: "<< geracao[0].check() << endl;	
 	
 		soma_iterac += iterac;
+		for (int i = 0; i < GEN; ++i)
+		{
+			gen_sum += geracao[i].check();
+		}
+		gen_tot += gen_sum/GEN;
 
 	}
 
-	printf("qtdzero: %d media:%f\n media_real: %f",zero_sum, soma_iterac/100.0, soma_iterac/(100.0-zero_sum) );
+	printf("qtdzero: %d media:%f\n media_real: %f check_medio: %f",zero_sum, soma_iterac/100.0, soma_iterac/(100.0-zero_sum) , gen_tot/100.0);
 
+	int a;
+	cin >> a;
 	return 0;
 }

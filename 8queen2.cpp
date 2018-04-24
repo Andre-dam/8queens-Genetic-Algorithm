@@ -204,7 +204,7 @@ int main(){
 srand (time(NULL));
 int soma_iterac=0;
 int zero_sum=0;
-
+int gen_tot=0;
 	for(int k=0; k<100;k++){
 
 		Chromosome* test;
@@ -214,7 +214,7 @@ int zero_sum=0;
 		Chromosome filho_1,filho_2;
 		int posicoes[QNT_ESCOLHIDOS];
 		int iterac;
-
+		int gen_sum=0;
 		printf("\n");
 		
 		for(iterac=0; iterac < 10000; iterac++){
@@ -323,9 +323,17 @@ int zero_sum=0;
 	
 		soma_iterac += iterac;
 
+		soma_iterac += iterac;
+		for (int i = 0; i < GEN; ++i)
+		{
+			gen_sum += geracao[i].check();
+		}
+		gen_tot += gen_sum/GEN;
+
 	}
 
-	printf("qtdzero: %d media:%f\n media_real: %f",zero_sum, soma_iterac/100.0, soma_iterac/(100.0-zero_sum) );
-
+	printf("qtdzero: %d media:%f\n media_real: %f check_medio: %f",zero_sum, soma_iterac/100.0, soma_iterac/(100.0-zero_sum) , gen_tot/100.0);
+		int a;
+	cin >> a;
 	return 0;
 }
